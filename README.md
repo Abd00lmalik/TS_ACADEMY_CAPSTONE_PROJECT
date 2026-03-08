@@ -416,4 +416,114 @@ trained on pre-2022 data alone would severely underestimate current and
 future food price levels.
 
 ---
+
+---
+
+## Basket Cost Seasonal Decomposition (Multiplicative)
+
+**Observation**  
+The multiplicative decomposition separates basket cost into three components: a dominant upward trend, a stable repeating seasonal pattern, and a residual that amplifies post-2023.
+
+**Trend Component (orange)**  
+- Flat and near-zero growth from 2017–2020, confirming basket cost was structurally stable in this period
+- Gradual acceleration from 2020–2022 as COVID supply chain effects and pre-shock inflation built up
+- Sharp exponential-style surge from mid-2023 onward, reaching ~₦100,000 by 2025
+- The trend component smoothly captures the regime change — confirming the shock was a **permanent level shift**, not a temporary spike
+
+**Seasonal Component (green)**  
+- Oscillates consistently between **0.99 and 1.02** across the entire 2017–2026 period
+- The pattern repeats identically every 12 months — confirming a **stable annual seasonality** (m=12)
+- Seasonal amplitude is very small (~±1%) relative to the overall price level — meaning seasonality explains only a minor fraction of total price variation
+- The consistency of the seasonal pattern across both the pre- and post-shock periods confirms that the shock did not distort the seasonal cycle — it only shifted the trend level
+
+**Residual Component (red)**  
+- Residuals remained tightly clustered around 1.0 (the neutral line) from 2017–2023 — confirming the model fits well in the stable period
+- Post-2024, residuals become more volatile, oscillating between 0.93 and 1.06 — reflecting price volatility that the trend and seasonal components cannot fully explain
+- The increased residual variance post-2023 is direct evidence of **heteroskedasticity** (non-constant variance)
+
+**Modelling Implication**  
+- The stable seasonal component confirms `m=12` and `D=1` (seasonal differencing) are appropriate in SARIMAX
+- The increasing residual variance post-2023 justifies **GARCH modelling** on the residuals to capture time-varying volatility
+- The smooth trend confirms shock dummies are needed to model the level shift, as the trend component alone cannot replicate the abrupt acceleration
+
+---
+
+## Food CPI Seasonal Decomposition (Multiplicative)
+
+**Observation**  
+The decomposition reveals a consistently growing trend, a very weak but stable seasonal pattern, and residuals that are well-behaved pre-2023 but diverge sharply post-2024.
+
+**Trend Component (orange)**  
+- Unlike basket cost, the CPI Food trend shows **no flat period** — it has grown continuously since 2017 without pause
+- Growth is smooth and accelerating — the curve is concave upward throughout, steepening noticeably from 2022 onward
+- The trend reaches ~1,200 by late 2025, closely tracking the original series — confirming the trend component captures the bulk of variation in CPI Food
+- The absence of a flat early period (unlike basket cost) reflects that CPI inflation was already structurally embedded before the 2023 shock
+
+**Seasonal Component (green)**  
+- Oscillates between **0.9950 and 1.0060** — an even narrower range than basket cost (~±0.5%)
+- The seasonal pattern is highly consistent and repeats exactly every 12 months
+- A clear within-year pattern is visible: CPI Food tends to spike in **mid-year (around Q2–Q3)** and dip in **early year (Q1)**, likely reflecting harvest and festive demand cycles
+- Seasonality is weaker in CPI Food than in basket cost, which makes sense as the official index applies weighting and smoothing that dampens raw commodity seasonality
+
+**Residual Component (red)**  
+- Pre-2023 residuals are remarkably stable, oscillating tightly between 0.98 and 1.02 — the model fits almost perfectly in this period
+- A notable dip below 1.0 in 2020–2021 reflects COVID-related demand suppression that the model does not fully explain
+- Post-2024 residuals become highly volatile, with spikes reaching 1.03 and 1.08 and drops to 0.97 — significantly larger than the pre-shock range
+- The sharp upward spike at the very end of the series (early 2026) suggests a recent price acceleration that the trend component has not yet caught up with
+
+**Modelling Implication**  
+- The very weak seasonal component (±0.5%) explains why `D=0` (no seasonal differencing) was selected for the CPI Food SARIMAX model — seasonal differencing would overcorrect a signal this small
+- The contrast with basket cost (where `D=2` performed better) reflects a fundamental difference: CPI Food is trend-dominated, while basket cost has a stronger seasonal structure
+- The post-2024 residual volatility confirms GARCH is equally applicable to CPI Food residuals — volatility clustering is present in both series
+
+---
+
+## Comparative Summary — Basket Cost vs Food CPI Decomposition
+
+| Component | Basket Cost | Food CPI |
+|---|---|---|
+| **Trend shape** | Flat 2017–2020, exponential post-2023 | Continuously growing, steepening from 2022 |
+| **Seasonal amplitude** | ±1.0% (moderate) | ±0.5% (very weak) |
+| **Seasonal stability** | Consistent across full period | Consistent across full period |
+| **Residual pre-shock** | Tight (0.95–1.05) | Very tight (0.98–1.02) |
+| **Residual post-shock** | Volatile (0.93–1.06) | Highly volatile (0.97–1.08) |
+| **Key implication** | Seasonal differencing warranted (D=1 or D=2) | Seasonal differencing not needed (D=0) |
+| **GARCH justified?** | Yes — residual variance increases post-2023 | Yes — residual variance increases post-2024 |
+
+---
+---
+
+## 🧮 basket_price Model Results & Selection
+
+### Model Comparison Table
+
+| Model | MSE | MAE | MAPE | Role |
+|---|---|---|---|---|
+| SARIMAX(2,2,3)(0,1,1,12) + exog | 11,498,346.40 | 2,814.17 | **2.73%** | ✅ Primary |
+| SARIMAX(2,2,3)(0,1,1,12) no exog | 19,006,908.38 | 3,947.19 | 3.87% | Comparable |
+| ARIMA(2,2,3) | 18,389,113.64 | 3,906.64 | 3.92% | Baseline |
+
+---
+
+## Model Selection Rationale
+
+**Primary Model: SARIMAX(2,2,3)(0,1,1,12) + exog**  
+Selected on the basis of superior performance across all three metrics. Adding exogenous variables (fuel price, exchange rate, shock dummies) reduced MAPE from 3.87% to **2.73%** — a **29.5% improvement** over the same SARIMAX specification without exog, and a **30.4% improvement** over the ARIMA baseline. All three targets comfortably beat the 5% MAPE project threshold.
+
+---
+
+## Key Findings
+
+- **Exogenous variables matter significantly** — the gap between SARIMAX+exog (2.73%) and SARIMAX no-exog (3.87%) confirms that fuel price, exchange rate, and shock dummies carry genuine predictive signal beyond what the ARIMA structure captures alone
+- **Seasonal structure adds marginal value** — SARIMAX no-exog (3.87%) and ARIMA (3.92%) perform almost identically, suggesting the seasonal component (0,1,1,12) contributes only ~0.05 MAPE points on its own; the real gain comes from the exogenous regressors
+- **MSE gap is the most striking metric** — the primary model's MSE (11.5M) is nearly **half** that of the no-exog and baseline models (~18.4–19.0M), indicating the exogenous variables substantially reduce large forecast errors, not just average errors
+- **MAE of ₦2,814** means the primary model's average forecast error is ~₦2,814 per month — on a basket averaging ~₦60,000–₦90,000 in the test period, this is an economically small error
+
+---
+
+## Modelling Implication
+
+The results confirm the core hypothesis of this project: **macroeconomic drivers (fuel price, exchange rate) and the 2023 structural break (shock dummies) are not optional controls — they are the primary sources of forecast accuracy improvement**. A pure time series model (ARIMA) without these regressors leaves nearly 30% of forecastable error on the table.
+
+---
 *TS Academy: Time Series Analysis | Capstone Project*
