@@ -526,4 +526,222 @@ Selected on the basis of superior performance across all three metrics. Adding e
 The results confirm the core hypothesis of this project: **macroeconomic drivers (fuel price, exchange rate) and the 2023 structural break (shock dummies) are not optional controls — they are the primary sources of forecast accuracy improvement**. A pure time series model (ARIMA) without these regressors leaves nearly 30% of forecastable error on the table.
 
 ---
-*TS Academy: Time Series Analysis | Capstone Project*
+## Project Conclusion
+
+### Forecasting Nigerian Food Prices: A Time Series Approach to
+### Understanding Structural Shocks, Macro Drivers, and Inflation Dynamics
+
+---
+
+### Overview
+
+This project set out to build a reliable, data-driven forecasting system
+for two critical indicators of Nigerian food affordability, the weighted
+household **Basket Cost** and the official **Food CPI**, using monthly
+data spanning January 2017 to January 2026. The central challenge was
+not merely technical: it was to build models that could honestly reflect
+the economic reality of a food system that was fundamentally and
+permanently altered by one of the most consequential policy decisions
+in Nigeria's recent history — the removal of the petrol subsidy in
+June 2023.
+
+Both targets exceeded the project's primary performance threshold of
+5% MAPE, with the primary models achieving:
+
+| Target | Model | MAPE | MAE |
+|---|---|---|---|
+| **Basket Cost** | SARIMAX(2,2,3)(0,1,1,12) + exog | **2.73%** | ₦2,814 |
+| **Food CPI** | SARIMAX(2,2,2)(0,0,1,12) + exog | **3.06%** | 37.3 pts |
+
+These results were not achieved by model complexity alone, they were
+achieved by correctly understanding and encoding the economic structure
+of Nigerian food markets into the modelling framework.
+
+---
+
+### What the Data Told Us
+
+The exploratory analysis told a story that statistics alone is not sufficient. From 2017 to early 2023, Nigerian food prices grew gradually — absorbing the 2016 recession, the 2019 land border
+closure, and the COVID-19 disruptions without permanent structural
+damage. Basket cost moved from ₦17,000 to ₦35,000 over six years.
+Food CPI climbed from 230 to 650 over the same period. These were
+significant increases, but they followed a predictable trajectory that
+conventional time series tools could track.
+
+Then June 2023 arrived.
+
+Within 18 months of the subsidy removal and simultaneous naira
+unification, basket cost nearly tripled to over ₦100,000. Food Inflation
+almost doubled to 1,240. The CUSUM analysis formally confirmed what
+the level plots showed visually, June 2023 was the exact month of
+maximum statistical deviation for basket cost, while Food CPI had
+already begun its structural break in August 2022, reflecting earlier
+transmission of global commodity shocks through import-dependent food
+categories.
+
+The commodity deep-dive made the human cost of this explicit. Every
+single one of the 14 basket commodities recorded post-shock price
+increases exceeding 150%. Yam, a locally produced staple with no
+import dependency increased by 473%, driven entirely by fuel cost
+transmission through transport and logistics. This finding directly
+challenged the assumption that import-dependent commodities suffer
+most during FX shocks. In Nigeria's food system, where fuel is
+embedded at every stage from farm to market, the transport cost
+channel proved equally or more destructive than the import price
+channel.
+
+---
+
+### What the Models Confirmed
+
+The modelling phase validated four core hypotheses:
+
+**1. Exogenous macro drivers are not optional, they are essential**
+
+The comparison between SARIMAX with and without exogenous variables
+was definitive. Without fuel price, exchange rate, and shock dummies,
+both ARIMA and SARIMAX models forecast continued upward momentum into
+2026, getting the direction of movement entirely wrong. The actual
+series was declining from its 2025 peak while the no-exog models
+confidently projected further acceleration. This is not a marginal
+difference in accuracy — it is a fundamental failure of the model to
+understand what is driving prices.
+
+Including exogenous regressors reduced basket cost MAPE by 29.5% and
+corrected the directional forecast for Food CPI entirely. Fuel price
+and exchange rate are not control variables, they are the primary
+transmission channels through which government policy and global
+markets reach Nigerian dinner tables.
+
+**2. The 2023 structural break required explicit modelling**
+
+Standard time series models assume the process generating the data
+remains stable throughout the sample. The June 2023 shock violated
+this assumption catastrophically. They were the mechanism by which the models distinguished between the pre-shock gradual growth regime and the post-shock permanent price plateau. Without them, every model would have been biased
+across the entire post-2023 period.
+
+**3. Volatility is not constant and pretending it is understates risk**
+
+The GARCH(1,1) analysis revealed that basket cost residuals exhibit
+IGARCH persistence (α + β = 1.0) with Student-t distributed errors
+(ν = 3.91). This means volatility shocks in Nigerian food prices do
+not decay, they persist indefinitely, consistent with a permanent
+regime change. The fat tails (ν < 5) confirm that extreme price months
+occur far more frequently than a normal distribution would predict.
+
+For Food CPI, the GARCH results were similarly revealing  ν = 4.9
+and IGARCH persistence, though the series was smoother and better
+behaved than basket cost by construction. Post-shock conditional
+volatility rose in both series, confirming that the new price regime
+is not only higher in level but higher in uncertainty.
+
+The practical implication is direct: any confidence interval or risk
+estimate built on the assumption of constant variance will
+systematically underestimate downside risk during periods of macro
+stress, exactly when accurate uncertainty quantification matters most.
+
+**4. The linked architecture improved Food CPI forecasting**
+
+Using basket cost forecasts as an exogenous regressor in the Food CPI
+model, the linked SARIMAX architecture outperformed the standalone
+specification. This confirms that basket cost is not just a parallel
+indicator to Food CPI but a genuine leading signal that carries
+predictive information about where the official inflation index is
+heading. The two series are structurally connected through the same
+underlying commodity markets and macro drivers, and modelling that
+connection explicitly improved forecast accuracy.
+
+---
+
+## The Broader Economic Narrative
+
+The numbers in this project tell a story about policy consequences that
+extends far beyond forecasting methodology.
+
+Nigeria's June 2023 dual shock, fuel subsidy removal and FX
+unification, was economically necessary in the long run. The subsidy
+had become fiscally unsustainable, consuming over ₦4 trillion annually
+by 2022. The multiple exchange rate windows distorted capital allocation
+and encouraged rent-seeking. The reforms were inevitable.
+
+But the data shows with uncomfortable clarity what "inevitable" meant
+for Nigerian households. A family spending ₦35,000 per month on food
+in May 2023 was spending over ₦100,000 for the same basket by early
+2025, a 186% increase in 20 months. Yam prices increased 473%.
+Local rice increased 341%. Brown beans increased 333%. These are not
+abstract index movements, they represent millions of Nigerian
+households being priced out of adequate nutrition.
+
+The rolling correlation analysis showed that fuel price became a
+**continuous structural driver** of food costs after June 2023, no
+longer the episodic, government-controlled variable it was during the
+subsidy era, but a market-driven cost that now flows permanently and
+continuously into every stage of food production and distribution. The
+pre-shock average rolling correlation between fuel price and basket
+cost was r = 0.27. The post-shock average is r = 0.72 and sustained.
+This is the statistical signature of a structural transformation, not
+a temporary disruption.
+
+---
+
+### Limitations and Honest Caveats
+
+This project was conducted with methodological rigour, and that rigour
+requires acknowledging its boundaries:
+
+**Data quality** — Basket cost data for November 2025 to January 2026
+was identified as forward-filled rather than independently observed.
+All evaluation metrics were computed on the confirmed three-month test
+period (August–October 2025) only. Forward forecasts beyond this point
+are genuine predictions, not evaluations.
+
+**Short post-shock sample** — With approximately 30 post-shock
+observations, GARCH parameter estimates carry wide confidence intervals.
+The IGARCH finding (α + β = 1.0) is directionally valid but should be
+interpreted as indicative of high persistence rather than a definitive
+permanent-volatility conclusion.
+
+**Constant exog assumption** — The 6-month forward forecasts assume
+fuel price and exchange rate remain at their 3-month rolling average
+values. Any significant policy change — further naira depreciation,
+fuel price adjustments, or external commodity shocks — would shift
+the central forecast materially. The widening confidence intervals
+honestly reflect this uncertainty.
+
+**Causal inference** — The high correlations observed throughout this
+project reflect co-movement over time, not established causal
+relationships. The models are optimised for forecasting accuracy, not
+causal identification.
+
+---
+
+## Final Remarks
+
+This project demonstrated that forecasting Nigerian food prices is
+fundamentally an exercise in understanding Nigerian economic policy.
+The best statistical model in the world cannot outperform a model that
+correctly identifies the forces driving the series, and in Nigeria's
+food market, those forces are fuel costs, exchange rates, and the policy
+decisions that determine them.
+
+The SARIMAX + exog framework, supported by GARCH volatility modelling
+and grounded in a thorough structural understanding of the June 2023
+shock, produced forecasts that not only met the 5% MAPE target but
+correctly identified the direction, magnitude, and uncertainty of
+food price movements in the post-shock period.
+
+For policymakers, the message is clear: food price stability in Nigeria
+is inseparable from energy price stability and exchange rate management.
+For households, the data confirms what they already know the cost of
+feeding a family in Nigeria has reached a level that demands urgent and
+sustained policy attention.
+
+For the field of time series analysis, this project adds to the growing
+evidence that economic and institutional context is not a supplement to
+good modelling, it is the foundation of it.
+
+---
+
+*TS Academy — Track 3: Time Series Analysis*
+*Capstone Project: Nigerian Food Basket Price & Food CPI Forecasting*
+*Group 7*
