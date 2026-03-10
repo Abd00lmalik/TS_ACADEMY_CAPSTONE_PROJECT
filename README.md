@@ -493,7 +493,7 @@ The decomposition reveals a consistently growing trend, a very weak but stable s
 ---
 ---
 
-## 🧮 basket_price Model Results & Selection
+## Basket_cost Model Results & Selection
 
 ### Model Comparison Table
 
@@ -508,7 +508,7 @@ The decomposition reveals a consistently growing trend, a very weak but stable s
 ## Model Selection Rationale
 
 **Primary Model: SARIMAX(2,2,3)(0,1,1,12) + exog**  
-Selected on the basis of superior performance across all three metrics. Adding exogenous variables (fuel price, exchange rate, shock dummies) reduced MAPE from 3.87% to **2.73%** — a **29.5% improvement** over the same SARIMAX specification without exog, and a **30.4% improvement** over the ARIMA baseline. All three targets comfortably beat the 5% MAPE project threshold.
+Selected based on superior performance across all three metrics. Adding exogenous variables (fuel price, exchange rate, shock dummies) reduced MAPE from 3.87% to **2.73%** — a **29.5% improvement** over the same SARIMAX specification without exog, and a **30.4% improvement** over the ARIMA baseline. All three targets comfortably beat the 5% MAPE project threshold.
 
 ---
 
@@ -524,6 +524,31 @@ Selected on the basis of superior performance across all three metrics. Adding e
 ## Modelling Implication
 
 The results confirm the core hypothesis of this project: **macroeconomic drivers (fuel price, exchange rate) and the 2023 structural break (shock dummies) are not optional controls — they are the primary sources of forecast accuracy improvement**. A pure time series model (ARIMA) without these regressors leaves nearly 30% of forecastable error on the table.
+
+---
+## Comparative Summary — Food CPI GARCH vs Basket Cost GARCH
+
+| Feature | Basket Cost | Food CPI |
+|---|---|---|
+| **Residual scale** | Large (±15 scaled) | Very small (±0.17 scaled) |
+| **Dominant volatility spike** | 2017 + 2018 | 2017 only |
+| **Calm period** | 2019–2023 | 2019–2023 |
+| **Post-shock volatility** | Rising, episodic | Rising, episodic but smaller |
+| **nu (ν)** | 3.91 (very fat tails) | 4.90 (moderate fat tails) |
+| **Student-t justified?** | Yes — strongly | Yes — moderately |
+| **Pre-shock avg σ** | ₦1,639 | 21 units |
+| **Post-shock avg σ** | ₦2,195 (34% higher) | 14 units (inflated by 2017) |
+| **ARIMA forecast bias** | Upward | Upward |
+| **SARIMAX+exog improvement** | Correctly identifies moderation | Correctly identifies moderation |
+
+**Conclusion**
+Both series exhibit IGARCH persistence, fat-tailed residuals, and
+post-shock volatility elevation — confirming GARCH was appropriate for
+both. Food CPI residuals are better behaved than basket cost residuals,
+reflecting that the official index is smoother by construction. In both
+cases, SARIMAX + exog substantially outperforms the ARIMA baseline by
+correctly capturing post-peak moderation that pure time series models
+miss entirely.
 
 ---
 ## Project Conclusion
@@ -542,7 +567,7 @@ data spanning January 2017 to January 2026. The central challenge was
 not merely technical: it was to build models that could honestly reflect
 the economic reality of a food system that was fundamentally and
 permanently altered by one of the most consequential policy decisions
-in Nigeria's recent history — the removal of the petrol subsidy in
+in Nigeria's recent history, the removal of the petrol subsidy in
 June 2023.
 
 Both targets exceeded the project's primary performance threshold of
@@ -732,13 +757,13 @@ food price movements in the post-shock period.
 
 For policymakers, the message is clear: food price stability in Nigeria
 is inseparable from energy price stability and exchange rate management.
-For households, the data confirms what they already know the cost of
+For households, the data confirms what they already know: the cost of
 feeding a family in Nigeria has reached a level that demands urgent and
 sustained policy attention.
 
 For the field of time series analysis, this project adds to the growing
-evidence that economic and institutional context is not a supplement to
-good modelling, it is the foundation of it.
+evidence that the economic and institutional context is not a supplement to
+Good modelling, but it is the foundation.
 
 ---
 
