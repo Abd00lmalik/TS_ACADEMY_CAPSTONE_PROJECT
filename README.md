@@ -1,147 +1,236 @@
-# TS_Academy_Capstone_Project
-## 🇳🇬 Food Basket Price & Food Inflation Forecasting
-### TS Academy — Track 3: Time Series Analysis | Capstone Project
+# 🇳🇬 Nigerian Food Price Forecasting — Time Series Analysis Capstone
+
+> **TS Academy Track 3 | Personal Repository**
+> A time series forecasting project on Nigerian household food basket
+> prices and Food CPI, using SARIMAX, GARCH, and macroeconomic drivers.
 
 ---
 
-## Project Overview
+##  Project Overview
 
-Nigeria has experienced severe food price inflation over the past decade, with conditions worsening significantly following the removal of the fuel subsidy in May 2023. This capstone project builds a **time series forecasting system** for two critical economic indicators:
+This project builds a data-driven forecasting system for two critical
+indicators of Nigerian food affordability:
 
-- **Basket Price** — a weighted composite of 14 staple food commodities reflecting the real cost of a typical Nigerian household's monthly food spend
-- **CPI Food** — the official Consumer Price Index for food, as published by the National Bureau of Statistics (NBS)
+- **Basket Cost** — the weighted monthly cost of a standardised
+  household food basket comprising 14 essential commodities
+- **Food CPI** — Nigeria's official Consumer Price Index for food,
+  published by the National Bureau of Statistics (NBS)
 
-By modelling both indicators simultaneously and linking them through a **cascade forecasting architecture**, we produce 6-month ahead forecasts that can inform household planning, policy decisions, and economic analysis.
-
----
-
-## Problem Statement
-
-Food affordability is one of the most pressing economic challenges facing Nigerian households today. Between 2022 and 2024, food prices surged by over 80% in nominal terms, driven by:
-
-- The removal of the petrol subsidy in June 2023, which caused immediate and severe cost-of-living shocks
-- Persistent naira depreciation against the US dollar, raising the cost of imported food and inputs
-- Supply chain disruptions and structural inefficiencies in local food markets
-
-Despite the severity of the crisis, reliable short-term forecasts for food prices remain scarce. Existing tools either rely on lagged official data or fail to account for structural breaks caused by policy changes.
-
-This project addresses that gap by developing **data-driven time series models** that:
-
-1. Explicitly model the 2023 structural break using shock dummy variables
-2. Incorporate macroeconomic drivers (fuel price, exchange rate) as exogenous regressors
-3. Validate a linked architecture where basket price forecasts improve CPI food predictions
-4. Quantify forecast uncertainty through GARCH volatility modelling
+Using monthly data spanning **January 2017 to January 2026**, the
+project investigates how macroeconomic shocks — particularly the
+**June 2023 fuel subsidy removal and naira unification** — permanently
+altered the structure and volatility of Nigerian food prices.
 
 ---
 
-## Project Objectives
+## Objectives
 
-- Achieve a **Mean Absolute Percentage Error (MAPE) below 5%** on both target variables
-- Identify and account for the **structural break** caused by the 2023 fuel subsidy removal
-- Build a **reproducible, modular forecasting pipeline** split across team notebooks
-- Generate **6-month forward forecasts** (November 2025 – April 2026) for both targets
-- Demonstrate the value of **linked modelling** — using basket price to improve CPI food predictions
+- Decompose Nigerian food price dynamics into trend, seasonal, and
+  structural shock components
+- Quantify the transmission of fuel price and exchange rate movements
+  into food costs
+- Build SARIMAX models incorporating macroeconomic exogenous regressors
+  and structural break dummies
+- Model time-varying forecast uncertainty using GARCH(1,1) with
+  Student-t errors
+- Produce a 6-month forward forecast (November 2025 – April 2026)
+  for both targets
+
 
 ---
 
 ## Dataset
 
-| Detail | Description |
-|--------|-------------|
-| **Source** | `Inflation_data.csv`, `PMS_Price.csv`, `Exchange_rate.csv`, `Selected_food_price.csv` (all available in this repository) |
-| **Coverage** | January 2017 – January 2026 (monthly frequency) |
-| **Key variables** | Basket commodity prices (eggs, beans, bread, chicken, garri, maize, onions, palm oil, rice, tomatoes, vegetable oil, yam, sweet potato), CPI Food, CPI All Items, fuel price (PMS), exchange rate (NGN/USD) |
-| **Frequency** | Monthly (`ME` — month-end) |
-| **Missing values** | Handled via time-series interpolation |
+| Feature | Detail |
+|---|---|
+| **Frequency** | Monthly |
+| **Period** | January 2017 — January 2026 |
+| **Observations** | ~109 months |
+| **Targets** | Basket Cost (₦), Food CPI (index) |
+| **Commodities** | 14 (see below) |
+| **Macro drivers** | Fuel price (₦/litre), Exchange rate (₦/USD) |
 
-### Basket Price Formula
-The basket price is a **weighted sum** of 14 commodities, reflecting typical Nigerian household consumption quantities:
-```python
-basket_price = eggs + 3×beans + 4×bread + 2×chicken + 4×garri + 2×maize
-             + onions + 2×palm_oil + 3×rice_local + 3×rice_imported
-             + 3×tomatoes + 2×vegetable_oil + 2×yam + 3×sweet_potato
-```
+### The 14 Basket Commodities
 
+Garri, Local Rice, Foreign Rice, Maize, Brown Beans, Yam, Potatoes,
+Tomatoes, Onions, Vegetable Oil, Palm Oil, Bread, Eggs, Chicken
 
-### Contributors
-|Name|Email| Github Link|
+### Basket Cost Formula
+
+$$\text{Basket Cost}_t = \sum_{i=1}^{14} w_i \times P_{i,t}$$
+
+Where $w_i$ is the fixed consumption weight for commodity $i$ and
+$P_{i,t}$ is the price of commodity $i$ at time $t$.
+
+---
+
+## Methodology
+
+### 1. Exploratory Data Analysis
+- Time series visualisation of basket cost and Food CPI
+- Pre vs post-shock regime comparison (June 2023 breakpoint)
+- Commodity-level price trends and weighted contribution analysis
+- Rolling 12-month correlation: basket cost vs fuel price and exchange rate
+- Multiplicative seasonal decomposition for both targets
+
+### 2. Structural Break Analysis
+- CUSUM test confirming June 2023 as the primary break date for basket cost
+- CUSUM confirms August 2022 as the break onset for Food CPI
+  (10 months earlier, reflecting Russia-Ukraine global commodity pressures)
+
+### 3. Stationarity Testing
+- ADF  tests on levels and differenced series
+- ACF/PACF analysis to identify ARIMA/SARIMAX orders
+
+### 4. Model Development
+
+| Stage | Model | Purpose |
 |---|---|---|
-|1. Ojumoola Paul|ojumoolatimi@gmail.com|https://github.com/ojumoolatimi |
-|2. JOHN MERCY OMETERE| princessade463@gmail.com|https://github.com/MercyJ01 |
-|3. Abdulmalik Abdulrashid|abdulmalikabdulrashid1@gmail.com|https://github.com/Abd00lmalik |
-|4. Chinecherem Victoria Isaac|chinecheremisaac25@gmail.com| |
-|5. Fayemi Anthony Olatokunbo|tonitokunbo@gmail.com|https://github.com/tonitokunbo |
-|6. Agunbiade Simbiat Mogbonjubola| mogbonjubola1999@gmail.com|https://github.com/simbiatagunbiade |
-|7. Abeeb Olasupo| olasupohabeeb219@gmail.com|https://github.com/habeeb-szn |
-|8. Ademola Adeyemi| Ademolaadeyemi719@gmail.com|https://github.com/Demola111 |
-|9. Odukaiye Moses| mosesx3m0@gmail.com|https://github.com/mosesx3m |
-|10. Orinya Samuel Obande| samuelorinys7@gmail.com|https://github.com/Phanerusis |
-|11. Olayinka Yusuf| yusufolayinka92@gmail.com|https://github.com/Sahdam |
-|12. Maria Ebimo Ebiakofa| Mariaebimo@gmail.com|https://github.com/Mia-Ebimo |
-|13. Sopuruchi | | sopuruchilizbeth@gmail.com|
+| Baseline | ARIMA(2,2,3) | Benchmark without seasonal or macro structure |
+| Comparable | SARIMAX(2,2,3)(0,1,1,12) no exog | Adds seasonal structure only |
+| **Primary** | **SARIMAX(2,2,3)(0,1,1,12) + exog** | Full model with macro drivers |
+| Linked | SARIMAX(1,2,1)(0,1,0,12) + exog | Food CPI using basket cost forecasts as exog |
+| Volatility | GARCH(1,1) Student-t | Time-varying uncertainty on both targets |
+
+### 5. GARCH Volatility Modelling
+- ARCH-LM test to formally confirm heteroskedasticity in residuals
+- GARCH(1,1) with Student-t errors fitted to SARIMAX residuals
+- Conditional volatility profiles: pre vs post-shock comparison
+- IGARCH persistence confirmed for both targets (α + β ≈ 1.0)
+
+### 6. Forecasting
+- Test set evaluation: August – October 2025
+- 6-month forward forecast: November 2025 – April 2026
+- Exog projections using 3-month rolling average of last known values
+- Confidence intervals generated from GARCH conditional volatility
 
 ---
 
-## Team & Role Assignments
+## Key Results
 
-> **Team Lead** participates in and oversees all sections of the project.
+### Model Performance
 
-| Role | Section | Notebook | Team Members |
-|------|---------|----------|--------------|
-| **Team Lead** | All sections | All notebooks | Team Lead *Olayinka Yusuf* |
-| **Team A** | Exploratory Data Analysis |`00_data_preprocessing_eda.ipynb` | Agunbiade Simbiat Mogbonjubola, Abeeb Olasupo, Chinecherem Victoria Isaac |
-| **Team B** | Stationarity & ACF/PACF | `01_stationarity_acf_pacf.ipynb` | JOHN MERCY OMETERE, Ademola Adeyemi , Odukaiye Moses |
-| **Team C** | basket_price Modelling | `02_basket_price_models.ipynb` | Ojumoola Paul, Orinya Samuel Obande, Abdulmalik Abdulrashid |
-| **Team D** | cpi_food Modelling & Forecasts | `03_cpi_food_and_forecasts.ipynb` | Maria Ebimo Ebiakofa, Fayemi Anthony Olatokunbo, @Sopuruchilizbeth |
+| Model | MSE | MAE | MAPE | Role |
+|---|---|---|---|---|
+| SARIMAX(2,2,3)(0,1,1,12) + exog | 11,498,346 | ₦2,814 | **2.73%** | ✅ Primary — Basket Cost |
+| SARIMAX(2,2,3)(0,1,1,12) no exog | 19,006,908 | ₦3,947 | 3.87% | Comparable |
+| ARIMA(2,2,3) | 18,389,114 | ₦3,907 | 3.92% | Baseline |
+| SARIMAX(1,2,1)(0,1,1,12) + exog | — | — | **1.16%** | ✅ Primary — Food CPI |
 
-### What Each Team Does
+> All primary models exceed the project target of **MAPE < 5%**
 
-**Team Lead — Setup & Data Preprocessing**
-- Creates and manages the GitHub repository
-- Reviews and integrates all team submissions
-- Work with every team in their respective notebooks
+### GARCH Results
 
-**Team A — Exploratory Data Analysis** (`00_data_preprocessing_eda.ipynb`)
-- Runs data loading, cleaning, type conversion, and interpolation
-- Engineers the basket price composite and derived features
-- Produces the clean `df` dataframe used by all teams
-- Time series plots for basket_price and cpi_food (level, MoM%, YoY%)
-- Correlation heatmap of all variables
-- Written markdown interpretations of all findings
+| Target | α (ARCH) | β (GARCH) | α + β | ν (d.f.) |
+|---|---|---|---|---|
+| Basket Cost | 0.8319 | 0.1681 | **1.0000** | 3.91 |
+| Food CPI | — | — | **≈ 1.0000** | 4.90 |
 
-**Team B — Stationarity & Diagnostics** (`01_stationarity_acf_pacf.ipynb`)
-- Seasonal decomposition (trend, seasonal, residual components)
-- ADF and KPSS tests on both series at the level and first difference
-- ACF and PACF plots on differenced series
-- Written stationarity conclusions and ARIMA order recommendations
+> IGARCH persistence confirmed for both series — volatility shocks
+> do not decay, consistent with a permanent structural break
 
-**Team C — basket_cost Modelling & Forecasts** (`02_basket_price_models.ipynb`)
-- Train/test split (train: Jan 2017 – Jul 2025 | test: Aug – Oct 2025)
-- ARIMA baseline model
-- SARIMAX with and without exogenous variables
-- GARCH(1,1) volatility analysis on residuals
-- 6-month forward forecasts for basket_cost (Nov 2025 – Apr 2026)
-- Model comparison table and actual vs predicted visualisation
+### 6-Month Forward Forecasts
 
-**Team D — cpi_food Modelling & Forecasts** (`03_cpi_food_and_forecasts.ipynb`)
-- Shock dummy creation (shock_onset: Mar–Dec 2023, shock_persist: 2024)
-- cpi_food standalone SARIMAX model
-- cpi_food linked model (using basket_price forecasts as regressor)
-- 6-month forward forecasts for food inflation (Nov 2025 – Apr 2026)
-- Model comparison table and actual vs predicted visualisation
-- Final dual-panel visualisations
+| Month | Basket Cost (₦) | Food CPI |
+|---|---|---|
+| November 2025 | ~94,500 | ~1,210 |
+| December 2025 | ~93,200 | ~1,195 |
+| January 2026 | ~92,800 | ~1,180 |
+| February 2026 | ~92,100 | ~1,165 |
+| March 2026 | ~91,600 | ~1,150 |
+| April 2026 | ~91,200 | ~1,140 |
+
+> Forecasts assume fuel price and exchange rate held at
+> 3-month rolling average of last observed values.
+> Wide confidence intervals apply — see notebook for full uncertainty bands.
 
 ---
 
-## Repository Structure
+## 💡 Key Findings
+
+**1. The June 2023 shock was the dominant event of the decade**
+Basket cost nearly tripled within 18 months of the subsidy removal.
+Food CPI almost doubled. No prior event, not the 2016 recession,
+the 2019 border closure, or COVID-19, produced a comparable
+structural level shift.
+
+**2. Fuel price is the most important macro driver post-shock**
+The rolling 12-month correlation between fuel price and basket cost
+rose from r = 0.27 (pre-shock) to r = 0.72 (post-shock) and remained
+sustained, confirming fuel became a continuous structural driver
+of food costs after subsidy removal.
+
+**3. Local staples were hit hardest, not imports**
+Yam (+473%), Potatoes (+349%), Local Rice (+341%), Brown Beans (+333%),
+and Maize (+316%) were the top 5 most affected commodities — all
+locally produced. Fuel cost transmission through transport and logistics
+proved as destructive as import price channels.
+
+**4. Exogenous variables are essential — not optional**
+SARIMAX without exog variables forecast the wrong direction entirely
+in the test period — projecting continued CPI growth while actual
+Food CPI was declining. Including fuel price, exchange rate, and
+shock dummies corrected both direction and magnitude.
+
+**5. Forecast uncertainty is permanent and asymmetric**
+IGARCH persistence (α + β = 1.0) and fat-tailed residuals (ν < 5)
+in both targets confirm that post-shock Nigeria operates in a
+fundamentally more uncertain food price environment. Normal-distribution
+confidence intervals would systematically understate downside risk.
+
+
+## Dependencies
 ```
-TS_Academy_Capstone_Project/
-│
-├── Project_Data - Sheet1.csv          # Raw dataset
-├── README.md                          # This file
-│
-├── 00_data_preprocessing_eda_decomposition.ipynb         # Team A: EDA
-├── 01_stationarity_acf_pacf.ipynb    # Team B: stationarity
+pandas
+numpy
+matplotlib
+seaborn
+statsmodels
+arch
+scipy
+sklearn
+```
+
+---
+
+## Important Notes
+
+- **Test set**: Basket cost data for Nov 2025 – Jan 2026 was identified
+  as forward-filled. All MAPE/MAE evaluations use the confirmed
+  Aug – Oct 2025 test period only.
+- **Forecast assumptions**: Forward projections assume constant macro
+  conditions based on a 3-month rolling average. Any significant policy
+  change would shift results materially.
+- **GARCH limitation**: With ~30 post-shock observations, GARCH
+  parameter estimates carry wide confidence intervals. Results are
+  directionally valid but should be treated as indicative.
+- **Causality**: High correlations throughout this project reflect
+  co-movement, not established causal relationships. Models are
+  optimised for forecasting accuracy, not causal identification.
+
+---
+
+## About This Project
+
+This repository is a personal submission for the **TS Academy Group 7 Track 3
+Capstone Project** — a group forecasting project on Nigerian food prices.
+
+The full group project was developed collaboratively across four
+sub-teams covering EDA, stationarity testing, basket price modelling,
+and Food CPI forecasting. This personal repository contains the complete
+end-to-end analysis independently reproduced and documented.
+
+**Programme**: TS Academy — Time Series Analysis Track 3
+**Topic**: Nigerian Food Basket Price & Food CPI Forecasting
+**Tools**: Python, statsmodels, arch, pandas, matplotlib
+
+---
+
+## License
+
+This project is submitted for educational purposes as part of the
+TS Academy programme. Dataset sourced from the National Bureau of
+Statistics (NBS) Nigeria. All analysis and code are original work.├── 01_stationarity_acf_pacf.ipynb    # Team B: stationarity
 ├── 02_basket_price_models.ipynb      # Team C: basket_price models
 └── 03_cpi_food_and_forecasts.ipynb   # Team D: cpi_food + forecasts
 ```
